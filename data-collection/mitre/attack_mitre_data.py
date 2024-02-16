@@ -13,16 +13,34 @@ def fetch_attack_data():
     return response.json()
 
 def extract_techniques(data):
-    techniques = []
+    techniques = {}
+    relationships = []
+
+    # First, collect all techniques and sub-techniques
     for obj in data.get("objects", []):
         if obj.get("type") == "attack-pattern":
             tech_info = {
                 "ID": obj.get("external_references", [{}])[0].get("external_id"),
-                "Title": obj.get("name"),
+                "Technique": obj.get("name"),
                 "URL": obj.get("external_references", [{}])[0].get("url")
             }
-            techniques.append(tech_info)
-    return techniques
+            techniques[obj['id']] = tech_info
+        elif obj.get("type") == "relationship" and obj.get("relationship_type") == "subtechnique-of":
+            relationships.append(obj)
+
+    # Now, process relationships to identify sub-techniques
+    for rel in relationships:
+        subtechnique_id = rel["source_ref"]
+        parent_technique_id = rel["target_ref"]
+        
+        if subtechnique_id in techniques and parent_technique_id in techniques:
+            # Prepend parent technique name to sub-technique
+            parent_name = techniques[parent_technique_id]["Technique"]
+            techniques[subtechnique_id]["Technique"] = f"{parent_name}: {techniques[subtechnique_id]['Technique']}"
+
+    return list(techniques.values())
+
+
 
 def save_as_json(techniques, filename):
     with open(f"{filename}.json", 'w') as file:
@@ -58,4 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
