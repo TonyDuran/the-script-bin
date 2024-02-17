@@ -5,13 +5,14 @@ import json
 import csv
 import yaml
 
-def fetch_attack_data():
-    url = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
+def fetch_attack_data(version: str):
+    url = f"https://raw.githubusercontent.com/mitre/cti/{version}/enterprise-attack/enterprise-attack.json"
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception(f"Failed to fetch data: {response.status_code}")
     return response.json()
 
+#NOTE: Not currently being used, but can be helpful for getting all available tactics
 def extract_tactics(data):
     tactics = []
 
@@ -79,9 +80,9 @@ def main():
     parser.add_argument("--format", choices=["json", "yaml", "csv"], required=True, help="Output format")
     parser.add_argument("--filename", default="output", help="Base output filename without extension")
     parser.add_argument("--delimiter", default=",", help="Delimiter for CSV output (default is comma)")
+    parser.add_argument("--version", default="master", help="Delimiter for CSV output (default is comma)")
     args = parser.parse_args()
-
-    attack_data = fetch_attack_data()
+    attack_data = fetch_attack_data(args.version)
     techniques = extract_techniques(attack_data)
 
     if args.format == "json":
