@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+
+"""
+DISCLAIMER:
+This script is intended for educational and authorized security testing purposes only.
+The author does not condone or support any illegal activity.
+Use only on systems you own or have explicit permission to test.
+No warranty is provided and the author accepts no liability for misuse or damage.
+"""
+
 import argparse
 import logging
 import paramiko
